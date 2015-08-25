@@ -1,0 +1,74 @@
+﻿<Window x:Class="PlagiarismChecker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Plagiarism Checker" Height="350" Width="825">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label
+            Margin="0,5,5,5"
+            Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" 
+            VerticalContentAlignment="Bottom"
+            Content="Plagiarism Checker" />
+        <Button
+            Name="Start"
+            Margin="5,5,5,5" 
+            Grid.Row="1" Grid.ColumnSpan="2"
+            HorizontalAlignment="Right" VerticalAlignment="Top" 
+            Width="75"
+            Content="Start" 
+            Click="Start_Click" />
+        <TextBox
+            Name="Content"
+            Margin="5,5,5,5" 
+            Grid.Row="2" Grid.ColumnSpan="2"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            AcceptsReturn="True" />
+        <ProgressBar
+            Name="Progress"
+            Margin="5,5,5,5" 
+            Grid.Row="3" Grid.ColumnSpan="2"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <Label
+            Name="PlagiarisedCount"
+            Margin="0,5,5,5"
+            Grid.Row="4" Grid.ColumnSpan="1" Grid.Column="0"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+            VerticalContentAlignment="Bottom"
+            Content="Plagiarised" />
+        <Label
+            Name="NonPlagiarisedCount"
+            Margin="0,5,5,5"
+            Grid.Row="4" Grid.ColumnSpan="1" Grid.Column="1"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            VerticalContentAlignment="Bottom" 
+            Content="Non Plagiarised" />
+        <ListView
+            Name="PlagiarisedList"
+            Margin="5,5,5,5" 
+            Grid.Row="5" Grid.ColumnSpan="1" Grid.Column="0"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <ListView
+            Name="NonPlagiarisedList"
+            Margin="5,5,5,5" 
+            Grid.Row="5" Grid.ColumnSpan="1" Grid.Column="1"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <Label
+            Margin="5,5,0,5"
+            Grid.Row="6" Grid.ColumnSpan="1" Grid.Column="1"
+            HorizontalAlignment="Right" VerticalAlignment="Stretch" 
+            Content="© Kappspot" />
+    </Grid>
+</Window>
