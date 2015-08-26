@@ -16,6 +16,7 @@ using System.Net;
 using System.Windows.Threading;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace PlagiarismChecker
 {
@@ -27,9 +28,16 @@ namespace PlagiarismChecker
         /// <summary>
         /// Static variables to optimize the results
         /// </summary>
-        static char[] DELIMITERS = { '.', ':', '?', '\n' };
+        static char[] DELIMITERS = { '.', '?', '\n' };
         static int MIN_ACCEPTABLE_LENGTH = 10;
-        static int WAIT_TIME = 1000;
+        static int MIN_ACCEPTABLE_WORDS = 4;
+        static int WAIT_TIME = 10;
+
+        static string SEARCH_ENGINE_QUERY = "http://www.bing.com/search?q=";
+        static string NOT_FOUND_STRING = "No results found for ";
+        static string DELIMITER = "\"";
+
+        static string ONLINE_FIND_QUERY = "http://www.google.com/search?q=";
 
         /// <summary>
         /// Data to update the UI and perform the tests
@@ -70,7 +78,7 @@ namespace PlagiarismChecker
         void PlagiarismChecker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             //Show a message box to display the percentage of the pure content in the document
-            MessageBox.Show("The content is " + ((double)NonPlagiarisedList.Items.Count / TestLines.Count * 100).ToString("0.00") + "% Non-Plagiarised");
+            MessageBox.Show("The content is " + ((double)NonPlagiarisedList.Items.Count / TestLines.Count * 100).ToString("0.00") + "% Non-Plagiarised", "Test Report");
 
             //Re-enable the start button to create another search
             Start.IsEnabled = true;
@@ -87,7 +95,7 @@ namespace PlagiarismChecker
             //Update the progress bar to show that one more line has been checked
             Progress.Value += 1;
 
-            //Is the last line is plagiarised then add it to the plagiarised list
+            //If the last line is plagiarised then add it to the plagiarised list
             //Else add it to the non plagiarised list
             if (isLastLinePlagiarised) { PlagiarisedList.Items.Add(lastCheckedLine); }
             else { NonPlagiarisedList.Items.Add(lastCheckedLine); }
@@ -95,6 +103,9 @@ namespace PlagiarismChecker
             //Set the count of the two categories in the label
             PlagiarisedCount.Content = "Plagiarised : " + PlagiarisedList.Items.Count;
             NonPlagiarisedCount.Content = "Non Plagiarised : " + NonPlagiarisedList.Items.Count;
+
+            //Set the originality index in the originality label
+            Originality.Content = "Orignality : " + ((double)NonPlagiarisedList.Items.Count / TestLines.Count * 100).ToString("0.00") + "%";
         }
 
         /// <summary>
@@ -167,6 +178,9 @@ namespace PlagiarismChecker
             //Initialize the label to reflect that the search has not started yet
             PlagiarisedCount.Content = "Plagiarised : " + "0";
             NonPlagiarisedCount.Content = "Non Plagiarised : " + "0";
+
+            //Reset the originality index
+            Originality.Content = "Originality: 0%";
         }
 
         /// <summary>
@@ -186,7 +200,7 @@ namespace PlagiarismChecker
             //Added to this use a regex to remove multiple space into a single space
             foreach (var contentLine in contentLines)
             {
-                if (contentLine.Length >= MIN_ACCEPTABLE_LENGTH)
+                if (contentLine.Length >= MIN_ACCEPTABLE_LENGTH && contentLine.Split(' ').Length - 1 >= MIN_ACCEPTABLE_WORDS)
                 {
                     testLines.Add(Regex.Replace(contentLine, @"[ ]{2,}", @" ", RegexOptions.None));
                 }
@@ -204,25 +218,27 @@ namespace PlagiarismChecker
         public bool IsPlagiarised(string textSentance)
         {
             //The format of the URL to send a request to Google
-            string url = Uri.EscapeUriString("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=" + "\"" + textSentance + "\"");
+            string url = Uri.EscapeUriString(SEARCH_ENGINE_QUERY + DELIMITER + textSentance + DELIMITER);
 
             //Download the search response
             WebClient client = new WebClient();
             string result = client.DownloadString(url);
 
-            //If google detects a abuse stop
-            //Cancel the process and try again in some time
-            if (result.Contains("\"responseDetails\": \"Suspected Terms of Service Abuse. Please see http://code.google.com/apis/errors\""))
-            {
-                MessageBox.Show("Google has detected an abuse of their services. So try again in a little time", "Google Error");
-                plagiarismChecker.CancelAsync();
-            }
-
             //Check to see if it contains no results in it
             //Return true if it is avilable in the google search results
             //Return false if it is not avilable in the google search results
-            if (result.Contains("\"results\":[]") == true) { return false; }
+            if (result.Contains(NOT_FOUND_STRING) == true) { return false; }
             else { return true; }
+        }
+
+        private void ListBox_ItemClick(object sender, MouseButtonEventArgs e)
+        {
+            ListBox senderList = sender as ListBox;
+
+            if(senderList.SelectedIndex >= 0)
+            {
+                Process.Start(ONLINE_FIND_QUERY + DELIMITER + senderList.SelectedItem.ToString() + DELIMITER);
+            }
         }
     }
 }

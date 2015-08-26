@@ -1,13 +1,13 @@
 ﻿<Window x:Class="PlagiarismChecker.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Plagiarism Checker" Height="350" Width="825">
+        Title="Plagiarism Checker" WindowState="Maximized">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="30"/>
             <RowDefinition Height="1*"/>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="3*"/>
             <RowDefinition Height="40"/>
@@ -42,6 +42,13 @@
             Grid.Row="3" Grid.ColumnSpan="2"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         <Label
+            Name="Originality"
+            Margin="5,5,5,5" 
+            Grid.Row="3" Grid.ColumnSpan="2"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            HorizontalContentAlignment="Center"
+            Content="Originality: 0%" />
+        <Label
             Name="PlagiarisedCount"
             Margin="0,5,5,5"
             Grid.Row="4" Grid.ColumnSpan="1" Grid.Column="0"
@@ -59,12 +66,14 @@
             Name="PlagiarisedList"
             Margin="5,5,5,5" 
             Grid.Row="5" Grid.ColumnSpan="1" Grid.Column="0"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            MouseDoubleClick="ListBox_ItemClick" />
         <ListView
             Name="NonPlagiarisedList"
             Margin="5,5,5,5" 
             Grid.Row="5" Grid.ColumnSpan="1" Grid.Column="1"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            MouseDoubleClick="ListBox_ItemClick"/>
         <Label
             Margin="5,5,0,5"
             Grid.Row="6" Grid.ColumnSpan="1" Grid.Column="1"
