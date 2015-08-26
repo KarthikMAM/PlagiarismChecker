@@ -184,12 +184,19 @@ namespace PlagiarismChecker
         }
 
         /// <summary>
+        /// Calls the appropriate data validator
+        /// </summary>
+        /// <param name="content">The content to be validated</param>
+        /// <returns>The list of validated string</returns>
+        private List<string> ValidateData(string content) { return ValidateData1(content); }
+
+        /// <summary>
         /// This will get the data and clean it
         /// To a format more suitable for checking online
         /// </summary>
         /// <param name="content">The content which is to be formatted and cleaned</param>
         /// <returns>Returns the list containing the data to be checked</returns>
-        private List<string> ValidateData(string content)
+        private List<string> ValidateData1(string content)
         {
             //Initialize the raw data
             List<string> contentLines = new List<string>(content.Split(DELIMITERS));
@@ -204,6 +211,34 @@ namespace PlagiarismChecker
                 {
                     testLines.Add(Regex.Replace(contentLine, @"[ ]{2,}", @" ", RegexOptions.None));
                 }
+            }
+
+            //Return the resultant list
+            return testLines;
+        }
+        
+        /// <summary>
+        /// This will get the data and clean it
+        /// To a format more suitable for checking online
+        /// </summary>
+        /// <param name="content">The content which is to be formatted and cleaned</param>
+        /// <returns>Returns the list containing the data to be checked</returns>
+        private List<string> ValidateData2(string content)
+        {
+            //Get the individual words
+            //and intialize the container for the sentences
+            List<string> words = new List<string>(content.Split(' '));
+            List<string> testLines = new List<string>();
+
+            //For every word do the following
+            for (int i = 0; i < words.Count; )
+            {
+                string temp = "";
+                for(int j=0; j<10 && i<words.Count; j++, i++)
+                {
+                    temp += words[i] + " ";
+                }
+                testLines.Add(Regex.Replace(temp.Replace('\n', ' '), @"[ ]{2,}", @" ", RegexOptions.None));
             }
 
             //Return the resultant list
