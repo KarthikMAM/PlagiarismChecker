@@ -7,19 +7,19 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PlagiarismChecker")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Plagiarism Checker")]
+[assembly: AssemblyDescription("Checks a Paper for Plagiarsim")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("PlagiarismChecker")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCompany("Kappspot")]
+[assembly: AssemblyProduct("Plagiarism Checker")]
+[assembly: AssemblyCopyright("Copyright ©  2015 Kappspot")]
+[assembly: AssemblyTrademark("Kappspot")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
+[assembly: ComVisible(true)]
 
 //In order to begin building localizable applications, set 
 //<UICulture>CultureYouAreCodingWith</UICulture> in your .csproj file

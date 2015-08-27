@@ -1,15 +1,15 @@
 ﻿<Window x:Class="PlagiarismChecker.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Plagiarism Checker" WindowState="Maximized">
+        Title="Plagiarism Checker" WindowState="Maximized" Background="Beige">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="30"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="1*"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="3*"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -30,12 +30,14 @@
             Width="75"
             Content="Start" 
             Click="Start_Click" />
-        <TextBox
-            Name="Content"
+        <ScrollViewer 
             Margin="5,5,5,5" 
             Grid.Row="2" Grid.ColumnSpan="2"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-            AcceptsReturn="True" />
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <TextBox
+                Name="Content"
+                AcceptsReturn="True" />
+        </ScrollViewer>
         <ProgressBar
             Name="Progress"
             Margin="5,5,5,5" 
@@ -79,5 +81,11 @@
             Grid.Row="6" Grid.ColumnSpan="1" Grid.Column="1"
             HorizontalAlignment="Right" VerticalAlignment="Stretch" 
             Content="© Kappspot" />
+        <CheckBox
+            Name="FullSentence"
+            Margin="5,10,0,5"
+            Grid.Row="6" Grid.ColumnSpan="1" Grid.Column="0"
+            HorizontalAlignment="Left" VerticalAlignment="Stretch" 
+            Content="Full Sentence"/>
     </Grid>
 </Window>

@@ -1,22 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Net;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Net;
-using System.Windows.Threading;
-using System.ComponentModel;
-using System.Text.RegularExpressions;
-using System.Diagnostics;
 
 namespace PlagiarismChecker
 {
@@ -33,10 +24,12 @@ namespace PlagiarismChecker
         static int MIN_ACCEPTABLE_WORDS = 4;
         static int WAIT_TIME = 10;
 
+        /// <summary>
+        /// Search parameters
+        /// </summary>
         static string SEARCH_ENGINE_QUERY = "http://www.bing.com/search?q=";
         static string NOT_FOUND_STRING = "No results found for ";
         static string DELIMITER = "\"";
-
         static string ONLINE_FIND_QUERY = "http://www.google.com/search?q=";
 
         /// <summary>
@@ -77,9 +70,11 @@ namespace PlagiarismChecker
         /// </param>
         void PlagiarismChecker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            //If the plagiarism checker completes checking the entire document
             //Show a message box to display the percentage of the pure content in the document
-            MessageBox.Show("The content is " + ((double)NonPlagiarisedList.Items.Count / TestLines.Count * 100).ToString("0.00") + "% Non-Plagiarised", "Test Report");
-
+            //Otherwise reset the UI.
+            if (Progress.Value == TestLines.Count) { MessageBox.Show("The content is " + ((double)NonPlagiarisedList.Items.Count / TestLines.Count * 100).ToString("0.00") + "% Non-Plagiarised", "Test Report"); }
+            else { InitializeUI(); }
             //Re-enable the start button to create another search
             Start.IsEnabled = true;
         }
@@ -188,7 +183,7 @@ namespace PlagiarismChecker
         /// </summary>
         /// <param name="content">The content to be validated</param>
         /// <returns>The list of validated string</returns>
-        private List<string> ValidateData(string content) { return ValidateData1(content); }
+        private List<string> ValidateData(string content) { return FullSentence.IsChecked == true ? ValidateData1(content) : ValidateData2(content); }
 
         /// <summary>
         /// This will get the data and clean it
@@ -209,7 +204,7 @@ namespace PlagiarismChecker
             {
                 if (contentLine.Length >= MIN_ACCEPTABLE_LENGTH && contentLine.Split(' ').Length - 1 >= MIN_ACCEPTABLE_WORDS)
                 {
-                    testLines.Add(Regex.Replace(contentLine, @"[ ]{2,}", @" ", RegexOptions.None));
+                    testLines.Add(Regex.Replace(contentLine.Replace('\n', ' ').Replace('\r', ' '), @"[ ]{2,}", @" ", RegexOptions.None));
                 }
             }
 
@@ -238,7 +233,7 @@ namespace PlagiarismChecker
                 {
                     temp += words[i] + " ";
                 }
-                testLines.Add(Regex.Replace(temp.Replace('\n', ' '), @"[ ]{2,}", @" ", RegexOptions.None));
+                testLines.Add(Regex.Replace(temp.Replace('\n', ' ').Replace('\r', ' '), @"[ ]{2,}", @" ", RegexOptions.None));
             }
 
             //Return the resultant list
@@ -266,14 +261,17 @@ namespace PlagiarismChecker
             else { return true; }
         }
 
+        /// <summary>
+        /// Searches the clicked item online in a search engine
+        /// </summary>
+        /// <param name="sender">The list box that is double clicked</param>
+        /// <param name="e">The event args</param>
         private void ListBox_ItemClick(object sender, MouseButtonEventArgs e)
         {
             ListBox senderList = sender as ListBox;
 
-            if(senderList.SelectedIndex >= 0)
-            {
-                Process.Start(ONLINE_FIND_QUERY + DELIMITER + senderList.SelectedItem.ToString() + DELIMITER);
-            }
+            //If an item is clicked. Open it in a web browser.
+            if (senderList.SelectedIndex >= 0) { Process.Start(ONLINE_FIND_QUERY + DELIMITER + senderList.SelectedItem.ToString() + DELIMITER); }
         }
     }
 }
