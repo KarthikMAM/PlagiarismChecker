@@ -20,9 +20,27 @@ namespace PlagiarismChecker
         /// Static variables to optimize the results
         /// </summary>
         static char[] DELIMITERS = { '.', '?', '\n' };
+        static char WORD_SEPERATOR = ' ';
         static int MIN_ACCEPTABLE_LENGTH = 10;
         static int MIN_ACCEPTABLE_WORDS = 4;
         static int WAIT_TIME = 10;
+        static int SENTENCE_WORD_LIMIT = 10;
+
+        /// <summary>
+        /// String templates
+        /// </summary>
+        static string ERROR_CODE_TEMPLATE = "ERROR: 0x{0}";
+        static string COMPLETE_MESSAGE_TEMPLATE = "The Document has {0}% Original Content";
+        static string ORIGINALITY_COUNT_TEMPLATE = "Orignality : {0}%";
+        static string PLAGIARISED_COUNT_TEMPLATE = "Plagiarised : {0}";
+        static string NON_PLAGIARIESD_COUNT_TEMPLATE = "Non Plagiarised : {0}";
+        static string PERCENTAGE_FORMAT = "0.00";
+
+        /// <summary>
+        /// UI Control Strings
+        /// </summary>
+        static string STOP_TEXT = "Stop";
+        static string STOPPING_TEXT = "Stopping...";
 
         /// <summary>
         /// Search parameters
@@ -73,10 +91,14 @@ namespace PlagiarismChecker
             //If the plagiarism checker completes checking the entire document
             //Show a message box to display the percentage of the pure content in the document
             //Otherwise reset the UI.
-            if (Progress.Value == TestLines.Count) { MessageBox.Show("The content is " + ((double)NonPlagiarisedList.Items.Count / TestLines.Count * 100).ToString("0.00") + "% Non-Plagiarised", "Test Report"); }
+            if (Progress.Value == TestLines.Count) { MessageBox.Show(String.Format(COMPLETE_MESSAGE_TEMPLATE, ((double)NonPlagiarisedList.Items.Count / TestLines.Count * 100).ToString(PERCENTAGE_FORMAT)), "Test Report"); }
             else { InitializeUI(); }
+
             //Re-enable the start button to create another search
             Start.IsEnabled = true;
+
+            //Reset the stop button content
+            Stop.Content = STOP_TEXT;
         }
 
         /// <summary>
@@ -96,11 +118,11 @@ namespace PlagiarismChecker
             else { NonPlagiarisedList.Items.Add(lastCheckedLine); }
 
             //Set the count of the two categories in the label
-            PlagiarisedCount.Content = "Plagiarised : " + PlagiarisedList.Items.Count;
-            NonPlagiarisedCount.Content = "Non Plagiarised : " + NonPlagiarisedList.Items.Count;
+            PlagiarisedCount.Content = String.Format(PLAGIARISED_COUNT_TEMPLATE, PlagiarisedList.Items.Count);
+            NonPlagiarisedCount.Content = String.Format(NON_PLAGIARIESD_COUNT_TEMPLATE, NonPlagiarisedList.Items.Count);
 
             //Set the originality index in the originality label
-            Originality.Content = "Orignality : " + ((double)NonPlagiarisedList.Items.Count / TestLines.Count * 100).ToString("0.00") + "%";
+            Originality.Content = String.Format(ORIGINALITY_COUNT_TEMPLATE, ((double)NonPlagiarisedList.Items.Count / TestLines.Count * 100).ToString(PERCENTAGE_FORMAT));
         }
 
         /// <summary>
@@ -131,7 +153,7 @@ namespace PlagiarismChecker
             }
             catch(Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERR" + ex.HResult);
+                MessageBox.Show(ex.Message, String.Format(ERROR_CODE_TEMPLATE, ex.HResult.ToString().Remove('-')));
             }
         }
 
@@ -171,11 +193,15 @@ namespace PlagiarismChecker
             NonPlagiarisedList.Items.Clear();
 
             //Initialize the label to reflect that the search has not started yet
-            PlagiarisedCount.Content = "Plagiarised : " + "0";
-            NonPlagiarisedCount.Content = "Non Plagiarised : " + "0";
+            PlagiarisedCount.Content = String.Format(PLAGIARISED_COUNT_TEMPLATE, 0);
+            NonPlagiarisedCount.Content = String.Format(NON_PLAGIARIESD_COUNT_TEMPLATE, 0);
 
             //Reset the originality index
-            Originality.Content = "Originality: 0%";
+            Originality.Content = String.Format(ORIGINALITY_COUNT_TEMPLATE, 0);
+
+            //Reset the stop button
+            Stop.Content = STOP_TEXT;
+            Stop.IsEnabled = true;
         }
 
         /// <summary>
@@ -183,7 +209,16 @@ namespace PlagiarismChecker
         /// </summary>
         /// <param name="content">The content to be validated</param>
         /// <returns>The list of validated string</returns>
-        private List<string> ValidateData(string content) { return FullSentence.IsChecked == true ? ValidateData1(content) : ValidateData2(content); }
+        private List<string> ValidateData(string content) 
+        {
+            //Clean the recurring symbols
+            content = Regex.Replace(content.Replace('\n', WORD_SEPERATOR)
+                                           .Replace('\r', WORD_SEPERATOR), @"[ ]{2,}", @" ", RegexOptions.None);
+ 
+            //Select a cleaning algorith based on the user option
+            //Returned the cleaned data
+            return FullSentence.IsChecked == true ? ValidateData1(content) : ValidateData2(content); 
+        }
 
         /// <summary>
         /// This will get the data and clean it
@@ -202,9 +237,9 @@ namespace PlagiarismChecker
             //Added to this use a regex to remove multiple space into a single space
             foreach (var contentLine in contentLines)
             {
-                if (contentLine.Length >= MIN_ACCEPTABLE_LENGTH && contentLine.Split(' ').Length - 1 >= MIN_ACCEPTABLE_WORDS)
-                {
-                    testLines.Add(Regex.Replace(contentLine.Replace('\n', ' ').Replace('\r', ' '), @"[ ]{2,}", @" ", RegexOptions.None));
+                if (contentLine.Length >= MIN_ACCEPTABLE_LENGTH && contentLine.Split(WORD_SEPERATOR).Length > MIN_ACCEPTABLE_WORDS) 
+                { 
+                    testLines.Add(contentLine);
                 }
             }
 
@@ -222,18 +257,18 @@ namespace PlagiarismChecker
         {
             //Get the individual words
             //and intialize the container for the sentences
-            List<string> words = new List<string>(content.Split(' '));
+            List<string> words = new List<string>(content.Split(WORD_SEPERATOR));
             List<string> testLines = new List<string>();
 
             //For every word do the following
             for (int i = 0; i < words.Count; )
             {
                 string temp = "";
-                for(int j=0; j<10 && i<words.Count; j++, i++)
+                for(int j=0; j<SENTENCE_WORD_LIMIT && i<words.Count; j++, i++)
                 {
-                    temp += words[i] + " ";
+                    temp += words[i] + WORD_SEPERATOR;
                 }
-                testLines.Add(Regex.Replace(temp.Replace('\n', ' ').Replace('\r', ' '), @"[ ]{2,}", @" ", RegexOptions.None));
+                testLines.Add(temp);
             }
 
             //Return the resultant list
@@ -272,6 +307,38 @@ namespace PlagiarismChecker
 
             //If an item is clicked. Open it in a web browser.
             if (senderList.SelectedIndex >= 0) { Process.Start(ONLINE_FIND_QUERY + DELIMITER + senderList.SelectedItem.ToString() + DELIMITER); }
+        }
+
+        /// <summary>
+        /// Stop the checking process 
+        /// and reinitialize the UI 
+        /// </summary>
+        /// <param name="sender">The Stop Button</param>
+        /// <param name="e">The RoutedEventArgs</param>
+        private void Stop_Click(object sender, RoutedEventArgs e)
+        {
+            //If the background thread is running then try to stop the thread
+            if (plagiarismChecker != null && plagiarismChecker.IsBusy)
+            {
+                //Indicate the status
+                Stop.Content = STOPPING_TEXT;
+                Stop.IsEnabled = false;
+
+                //Cancel the checker async and wait to transfer the control
+                plagiarismChecker.CancelAsync();
+                System.Threading.Thread.Sleep(WAIT_TIME);
+            }
+        }
+
+        /// <summary>
+        /// Double click event to select all the text in the data field
+        /// </summary>
+        /// <param name="sender">The object clicked</param>
+        /// <param name="e">The event args</param>
+        private void Content_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            //Select all the text in the content text box upon a mouse double click
+            Content.SelectAll(); 
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿<Window x:Class="PlagiarismChecker.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Plagiarism Checker" WindowState="Maximized" Background="Beige">
+        Title="Plagiarism Checker" Background="Beige" MinHeight="600" MinWidth="800" Height="600" Width="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
@@ -36,6 +36,8 @@
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
             <TextBox
                 Name="Content"
+                TextWrapping="Wrap"
+                MouseDoubleClick="Content_MouseDoubleClick"
                 AcceptsReturn="True" />
         </ScrollViewer>
         <ProgressBar
@@ -86,6 +88,15 @@
             Margin="5,10,0,5"
             Grid.Row="6" Grid.ColumnSpan="1" Grid.Column="0"
             HorizontalAlignment="Left" VerticalAlignment="Stretch" 
+            IsChecked="True"
             Content="Full Sentence"/>
+        <Button
+        	Name="Stop"
+        	Margin="0,5,85,0" 
+        	Grid.Row="1"
+        	HorizontalAlignment="Right" VerticalAlignment="Top" 
+        	Width="75"
+        	Content="Stop" 
+        	Click="Stop_Click" Grid.Column="1" />
     </Grid>
 </Window>
