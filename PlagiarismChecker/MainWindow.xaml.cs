@@ -6,7 +6,6 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 
 namespace PlagiarismChecker
@@ -45,10 +44,10 @@ namespace PlagiarismChecker
         /// <summary>
         /// Search parameters
         /// </summary>
-        static string SEARCH_ENGINE_QUERY = "http://www.bing.com/search?q=";
-        static string NOT_FOUND_STRING = "No results found for ";
+        static string SEARCH_ENGINE_QUERY = "http://www.bing.com/search?q=%2B";
+        static string NOT_FOUND_STRING = "<strong>{0}</strong>";
         static string DELIMITER = "\"";
-        static string ONLINE_FIND_QUERY = "http://www.google.com/search?q=";
+        static string ONLINE_FIND_QUERY = "http://www.bing.com/search?q=%2B";
 
         /// <summary>
         /// Data to update the UI and perform the tests
@@ -276,24 +275,32 @@ namespace PlagiarismChecker
         }
 
         /// <summary>
-        /// This will check whether a string exists in the Google Search Results or not
+        /// This will check whether a string exists in the Bing Search Results or not
         /// </summary>
         /// <param name="textSentance">The sentence to be checked online</param>
         /// <returns>A boolean variable which tells us whether the input sentence is plagiarised or not</returns>
         public bool IsPlagiarised(string textSentance)
         {
-            //The format of the URL to send a request to Google
-            string url = Uri.EscapeUriString(SEARCH_ENGINE_QUERY + DELIMITER + textSentance + DELIMITER);
+            //The format of the URL to send a request to Bing
+            string url = SEARCH_ENGINE_QUERY + DELIMITER + textSentance.Replace(" ", "+") + DELIMITER;
 
-            //Download the search response
-            WebClient client = new WebClient();
-            string result = client.DownloadString(url);
+            try
+            {
+                //Download the search response
+                WebClient client = new WebClient();
+                string result = Regex.Replace(client.DownloadString(url), @"[^0-9a-zA-Z\n<>]+", "");
+                string query = Regex.Replace(String.Format(NOT_FOUND_STRING, textSentance), @"[^0-9a-zA-Z\n<>]+", "");
 
-            //Check to see if it contains no results in it
-            //Return true if it is avilable in the google search results
-            //Return false if it is not avilable in the google search results
-            if (result.Contains(NOT_FOUND_STRING) == true) { return false; }
-            else { return true; }
+                //Check to see if it contains no results in it
+                //Return true if it is avilable in the Bing search results
+                //Return false if it is not avilable in the Bing search results
+                if (result.Contains(query) == false) { return false; }
+                else { return true; }
+            } catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Error");
+                throw e;
+            }
         }
 
         /// <summary>
@@ -306,7 +313,7 @@ namespace PlagiarismChecker
             ListBox senderList = sender as ListBox;
 
             //If an item is clicked. Open it in a web browser.
-            if (senderList.SelectedIndex >= 0) { Process.Start(ONLINE_FIND_QUERY + DELIMITER + senderList.SelectedItem.ToString() + DELIMITER); }
+            if (senderList.SelectedIndex >= 0) { Process.Start(ONLINE_FIND_QUERY + DELIMITER + DELIMITER + senderList.SelectedItem.ToString().Replace(' ', '+') + DELIMITER + DELIMITER); }
         }
 
         /// <summary>
